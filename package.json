@@ -1,0 +1,51 @@
+{
+  "name": "loopscale_pricing_adapters",
+  "version": "1.1.0",
+  "main": "dist/main.js",
+  "types": "dist/index.d.ts",
+  "devDependencies": {
+    "@eslint/js": "^9.31.0",
+    "@types/bn.js": "^5.1.6",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.20",
+    "@types/node-fetch": "^2.6.12",
+    "@typescript-eslint/eslint-plugin": "^8.37.0",
+    "@typescript-eslint/parser": "^8.37.0",
+    "eslint": "^9.31.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^16.3.0",
+    "nodemon": "^3.1.9",
+    "typescript": "^5.2.2",
+    "typescript-eslint": "^8.37.0"
+  },
+  "scripts": {
+    "start": "node dist/src/main.js",
+    "build": "tsc",
+    "dev": "ts-node --transpileOnly ./src/main.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "npx eslint 'src/**/*.{ts,tsx}'",
+    "lint:fix": "npx eslint 'src/**/*.{ts,tsx}' --fix"
+  },
+  "keywords": ["DeFi Llama"],
+  "author": "Loopscale Labs",
+  "license": "ISC",
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.31.0",
+    "@iarna/toml": "^2.2.5",
+    "@mercurial-finance/dynamic-amm-sdk": "^1.1.6",
+    "@sentry/node": "^9.10.0",
+    "@solana/spl-stake-pool": "^1.1.8",
+    "@solana/spl-token": "^0.4.13",
+    "@solana/web3.js": "^1.98.2",
+    "bn.js": "^5.2.1",
+    "bs58": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-jwt": "^8.4.1",
+    "flash-sdk": "^3.1.10",
+    "ts-node": "^10.9.1"
+  }
+}
