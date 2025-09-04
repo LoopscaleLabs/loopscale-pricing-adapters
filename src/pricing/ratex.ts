@@ -3,8 +3,11 @@ import { switchBaseDecimals } from "../utils";
 
 export const UNDERLYING_RATEX_MINT_DATA: {[exponentMint: string]: string} = {
     "nzjiFvnfhU1C7p2WrH44ap9peywJqNFpZDDK2N2NZ5w": "WFRGB49tP8CdKubqCdt5Spo2BdGS4BpgoinNER5TYUm",
+    "E21wktAmr1L1Rtp1PJrLoG5BmcSoxdLkBcxBroXkDFAc": "WFRGB49tP8CdKubqCdt5Spo2BdGS4BpgoinNER5TYUm",
     "CAb6jxHAG4nf1A9iqxq13rvPDXuLjePS3ySceVpPkH98": "WFRGSWjaz8tbAxsJitmbfRuFV2mSNwy7BMWcCwaA28U",
+    "2qwUBG181wtExip2zmE9DitEt1FieWgWsnReeAsA2rHw": "WFRGSWjaz8tbAxsJitmbfRuFV2mSNwy7BMWcCwaA28U",
     "H6j2ShQNXieBh5rpH2Er7NEwPenzT7Z1sXTe7Z9gbCtQ": "59obFNBzyTBGowrkif5uK7ojS58vsuWz3ZCvg6tfZAGw",
+    "AfC9nF128ZfRJrjbuipoiHuZVFvKTWNBMY53oW8PbFNy": "59obFNBzyTBGowrkif5uK7ojS58vsuWz3ZCvg6tfZAGw",
     "9u4L9adN74QT8mF1NffTKybgZeL87LtzQ81djiPDZ9fH": "BenJy1n3WTx9mTjEvy63e8Q1j4RqUc6E4VBMz3ir4Wo6",
     "EJGt7pmcxugyLpEiqoR6tv4jESCPV4atqoeCtiVadeqz": "BenJy1n3WTx9mTjEvy63e8Q1j4RqUc6E4VBMz3ir4Wo6",
     "5Xbc27QAWa5v2SQKqM4rteoPyyEJ43FwEj1yH6iEnhR7": "BenJy1n3WTx9mTjEvy63e8Q1j4RqUc6E4VBMz3ir4Wo6",

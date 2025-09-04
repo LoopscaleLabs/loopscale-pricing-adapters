@@ -34,8 +34,12 @@ async function attemptParseWhirlpoolPositions(connection: Connection, positionMi
         return getProgramAddress(seeds, program.programId);
     });
     // Fetch raw PDA Data
-    // TODO: CHUNK 100
-    const accounts = await connection.getMultipleAccountsInfo(positionPdas);
+    const accounts = [];
+    for(let i = 0; i < positionPdas.length; i = i + 10) {
+        const batch = positionPdas.slice(i, Math.min(i + 10, positionPdas.length));
+        const accountBatch = await connection.getMultipleAccountsInfo(batch);
+        accounts.push(...accountBatch);
+    }
 
     const whirlpoolPositions = accounts.filter((account) => account !== null && account.data !== undefined);
     
