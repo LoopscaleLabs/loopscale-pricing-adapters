@@ -10,7 +10,12 @@ export const UNDERLYING_EXPONENT_MINT_DATA: {[exponentMint: string]: string} = {
     "EyTuhyTjQvT7HfX1wtD6CrmysDRN9fj9iLjQLx6T5yMY": "BenJy1n3WTx9mTjEvy63e8Q1j4RqUc6E4VBMz3ir4Wo6",
     "34hCAWvkVsiSK8np5fED1CjMhKVUved8DpbdGnWJuopc": "BenJy1n3WTx9mTjEvy63e8Q1j4RqUc6E4VBMz3ir4Wo6",
     "6RweeuQgwR4h7MEYHNwjCEUmBCDntxM89XZb7PcGZCDp": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-    "8d3Gd3P4VwCWXCs1hHtDDXyEdv5rRcf6APDwmPvDMupX": "WFRGB49tP8CdKubqCdt5Spo2BdGS4BpgoinNER5TYUm"
+    "8d3Gd3P4VwCWXCs1hHtDDXyEdv5rRcf6APDwmPvDMupX": "WFRGB49tP8CdKubqCdt5Spo2BdGS4BpgoinNER5TYUm",
+    "6iVwqDcVqatTobV1Cf3A38Zgw8omDBqctbxDpYoBbpmo": "HnnGv3HrSqjRpgdFmx7vQGjntNEoex1SU4e9Lxcxuihz", // shyusd,
+    "6nHhcyQ4oJHedRKhpTT24XqjioSG7g7y8LacZDtkCYKP": "hy1opf2bqRDwAxoktyWAj6f3UpeHcLydzEdKjMYGs2u", // hylosolplus
+    "6tvabwb17ucuRS26VYAcijfoN2Chd1gy7PMrk6DiYCQ5": "5YMkXAYccHSGnHn9nob9xEvv6Pvka9DZWH7nTbotTu9E", // hyusd
+    "7Z3ZVXxdQ59DAKKacva9DFjdiFGj7fGK5JA2h51xFR9J": "hy1oXYgrBW6PVcJ4s6s2FKavRdwgWTXdfE69AxT7kPT", // hylosol
+    "AqSfXMdsQ99ioNB3VhHXYsKFQDMDVFooh9JNv8Ap4bC": "5Y8NV33Vv7WbnLfq3zBcKSdYPrk7g2KoiQoe7M2tcxp5" //onyc
 };
 
 export function getExponentTokenBalances(connection: Connection, balances: {[mint: string]: number}, decimalMap: Map<string, number>) {
