@@ -15,7 +15,11 @@ export const UNDERLYING_EXPONENT_MINT_DATA: {[exponentMint: string]: string} = {
     "6nHhcyQ4oJHedRKhpTT24XqjioSG7g7y8LacZDtkCYKP": "hy1opf2bqRDwAxoktyWAj6f3UpeHcLydzEdKjMYGs2u", // hylosolplus
     "6tvabwb17ucuRS26VYAcijfoN2Chd1gy7PMrk6DiYCQ5": "5YMkXAYccHSGnHn9nob9xEvv6Pvka9DZWH7nTbotTu9E", // hyusd
     "7Z3ZVXxdQ59DAKKacva9DFjdiFGj7fGK5JA2h51xFR9J": "hy1oXYgrBW6PVcJ4s6s2FKavRdwgWTXdfE69AxT7kPT", // hylosol
-    "AqSfXMdsQ99ioNB3VhHXYsKFQDMDVFooh9JNv8Ap4bC": "5Y8NV33Vv7WbnLfq3zBcKSdYPrk7g2KoiQoe7M2tcxp5" //onyc
+    "AqSfXMdsQ99ioNB3VhHXYsKFQDMDVFooh9JNv8Ap4bC": "5Y8NV33Vv7WbnLfq3zBcKSdYPrk7g2KoiQoe7M2tcxp5", //onyc
+    "6oiDcfve7ybKUC8ysZmncC9iSuxQG2vrRkh3dgV7EKR4": "3ThdFZQKM6kRyVGLG48kaPg5TRMhYMKY1iCRa9xop1WC", //eusx
+    "HNapfhQhXPCw5DsEJtkQPQqyNLC767Ax7CVxSkFZRtTB": "WFRGSWjaz8tbAxsJitmbfRuFV2mSNwy7BMWcCwaA28U", // fragsol feb 26
+    "Bw6zsBWadivcKo1n2wEyF79pSrKDGyggif4a7wv3dtVi": "BULKoNSGzxtCqzwTvg5hFJg8fx6dqZRScyXe5LYMfxrn", // bulksol feb 26
+    "9AuU8dyHDs7cuzVm9jcu5vmfJpN9dxnaZaB9Cuc5hdmC": "4sWNB8zGWHkh6UnmwiEtzNxL4XrN7uK9tosbESbJFfVs" // xSOL
 };
 
 export function getExponentTokenBalances(connection: Connection, balances: {[mint: string]: number}, decimalMap: Map<string, number>) {
