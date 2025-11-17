@@ -19,7 +19,8 @@ export const UNDERLYING_EXPONENT_MINT_DATA: {[exponentMint: string]: string} = {
     "6oiDcfve7ybKUC8ysZmncC9iSuxQG2vrRkh3dgV7EKR4": "3ThdFZQKM6kRyVGLG48kaPg5TRMhYMKY1iCRa9xop1WC", //eusx
     "HNapfhQhXPCw5DsEJtkQPQqyNLC767Ax7CVxSkFZRtTB": "WFRGSWjaz8tbAxsJitmbfRuFV2mSNwy7BMWcCwaA28U", // fragsol feb 26
     "Bw6zsBWadivcKo1n2wEyF79pSrKDGyggif4a7wv3dtVi": "BULKoNSGzxtCqzwTvg5hFJg8fx6dqZRScyXe5LYMfxrn", // bulksol feb 26
-    "9AuU8dyHDs7cuzVm9jcu5vmfJpN9dxnaZaB9Cuc5hdmC": "4sWNB8zGWHkh6UnmwiEtzNxL4XrN7uK9tosbESbJFfVs" // xSOL
+    "9AuU8dyHDs7cuzVm9jcu5vmfJpN9dxnaZaB9Cuc5hdmC": "4sWNB8zGWHkh6UnmwiEtzNxL4XrN7uK9tosbESbJFfVs", // xSOL
+    "7vWj1UriSscGmz5wadAC8EkA8ndoU3M7WUifqxTC3Ysf": "6FrrzDk5mQARGc1TDYoyVnSyRdds1t4PbtohCD6p3tgG" //usx feb 26
 };
 
 export function getExponentTokenBalances(connection: Connection, balances: {[mint: string]: number}, decimalMap: Map<string, number>) {

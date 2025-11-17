@@ -22,7 +22,9 @@ export const UNDERLYING_RATEX_MINT_DATA: {[exponentMint: string]: string} = {
     "AvZqwxqWXuEW3hJD1A4Ve8bPbeb3xQTiGuyHuTnr5DPk": "HnnGv3HrSqjRpgdFmx7vQGjntNEoex1SU4e9Lxcxuihz",
     "ATwUJh67itLThdNHcjorSFZhUQFr9E3QXhy3yAXu8Y9K": "59obFNBzyTBGowrkif5uK7ojS58vsuWz3ZCvg6tfZAGw",
     "CpqiKSHuEeP3YHUHF1oMkheQJ6PbZ13ASkMdiXR6jJQ3": "4sWNB8zGWHkh6UnmwiEtzNxL4XrN7uK9tosbESbJFfVs",
-    "CW5HCcetvCMcT8B44P3kakBtQzdC5Jqpyv3ZPyj5HvQB": "5YMkXAYccHSGnHn9nob9xEvv6Pvka9DZWH7nTbotTu9E"
+    "CW5HCcetvCMcT8B44P3kakBtQzdC5Jqpyv3ZPyj5HvQB": "5YMkXAYccHSGnHn9nob9xEvv6Pvka9DZWH7nTbotTu9E",
+    "8nwGg3MYRghtC1usypoSncsDwvveDfW3w9JvtCNTZ2dk": "5Y8NV33Vv7WbnLfq3zBcKSdYPrk7g2KoiQoe7M2tcxp5",
+    "D1XhYyvKoEhWy7XfeLjH1KJdfk5xJCDGXZL1kkB5x2xa": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
 };
 
 export function getRateXTokenBalances(connection: Connection, balances: {[mint: string]: number}, decimalMap: Map<string, number>) {

@@ -2,9 +2,18 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { getDecimalMap } from './utils';
 import { Connection, PublicKey } from '@solana/web3.js';
-import { deriveStakePoolExchangeRates, getRateXTokenBalances, parseAndConvertWhirlpoolPositions, UNDERLYING_RATEX_MINT_DATA } from './pricing';
-import { getExponentTokenBalances, UNDERLYING_EXPONENT_MINT_DATA } from './pricing';
-import { getMeteoraTokenBalances } from './pricing/meteora';
+import { 
+  getMeteoraTokenBalances, 
+  getExponentTokenBalances, 
+  UNDERLYING_EXPONENT_MINT_DATA, 
+  deriveStakePoolExchangeRates, 
+  getRateXTokenBalances, 
+  parseAndConvertWhirlpoolPositions, 
+  UNDERLYING_RATEX_MINT_DATA, 
+  getXsolBalanceInJitoSol, 
+  JITOSOL_MINT 
+} from './pricing';
+
 const app = express();
 const HTTP_PORT = process.env.HTTP_PORT || 80;
 
@@ -20,9 +29,10 @@ app.get('/', async (_req: Request, res: Response) => {
 
 const handler = {
     "whirlpools": parseAndConvertWhirlpoolPositions,
-    "sanctum": deriveStakePoolExchangeRates,
     "exponent": getExponentTokenBalances,
     "ratex": getRateXTokenBalances,
+    "hylo": getXsolBalanceInJitoSol,
+    "sanctum": deriveStakePoolExchangeRates,
     "meteora": getMeteoraTokenBalances
 };
 
@@ -35,6 +45,7 @@ app.post(
       const mints = Object.keys(balances).map((mint) => new PublicKey(mint));
       mints.push(...Object.values(UNDERLYING_EXPONENT_MINT_DATA).map((mint) => new PublicKey(mint)));
       mints.push(...Object.values(UNDERLYING_RATEX_MINT_DATA).map((mint) => new PublicKey(mint)));
+      mints.push(...[new PublicKey(JITOSOL_MINT)]) // Adding in case not present for Hylo XSol
 
       const url = process.env.SOLANA_RPC_URL;
       if (!url) {
