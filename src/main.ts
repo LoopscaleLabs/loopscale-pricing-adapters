@@ -8,10 +8,16 @@ import {
   UNDERLYING_EXPONENT_MINT_DATA, 
   deriveStakePoolExchangeRates, 
   getRateXTokenBalances, 
+  getUsdcBalanceOfFlp,
   parseAndConvertWhirlpoolPositions, 
   UNDERLYING_RATEX_MINT_DATA, 
-  getXsolBalanceInJitoSol, 
-  JITOSOL_MINT 
+  JITOSOL_MINT, 
+  parseAndConvertWhirlpoolPositionsBn,
+  getExponentTokenBalancesBn,
+  getRateXTokenBalancesBn,
+  deriveStakePoolExchangeRatesBn,
+  getMeteoraTokenBalancesBn,
+  getUsdcBalanceOfFlpBn
 } from './pricing';
 
 const app = express();
@@ -31,9 +37,9 @@ const handler = {
     "whirlpools": parseAndConvertWhirlpoolPositions,
     "exponent": getExponentTokenBalances,
     "ratex": getRateXTokenBalances,
-    "hylo": getXsolBalanceInJitoSol,
     "sanctum": deriveStakePoolExchangeRates,
-    "meteora": getMeteoraTokenBalances
+    "meteora": getMeteoraTokenBalances,
+    "flash": getUsdcBalanceOfFlp
 };
 
 app.post(
@@ -62,6 +68,85 @@ app.post(
       }
 
       res.json(balances);
+    } catch (error) {
+      console.error("Error processing request:", error);
+    }
+  },
+);
+
+const handlerBn = {
+    "whirlpools": parseAndConvertWhirlpoolPositionsBn,
+    "exponent": getExponentTokenBalancesBn,
+    "ratex": getRateXTokenBalancesBn,
+    "sanctum": deriveStakePoolExchangeRatesBn,
+    "meteora": getMeteoraTokenBalancesBn,
+    "flash": getUsdcBalanceOfFlpBn,
+};
+
+type BigIntStringMap = Record<string, string>;
+type BigIntMap = Record<string, bigint>;
+
+export function parseBigIntStringMap(input: BigIntStringMap): BigIntMap {
+  const out: BigIntMap = Object.create(null);
+
+  for (const [k, v] of Object.entries(input)) {
+    if (typeof v !== "string") {
+      throw new Error(`Value for key "${k}" must be a string`);
+    }
+
+    const s = v.trim();
+    // Optional: basic validation (decimal, optional leading -)
+    if (!/^-?\d+$/.test(s)) {
+      throw new Error(`Invalid bigint string for key "${k}": "${v}"`);
+    }
+
+    out[k] = BigInt(s);
+  }
+
+  return out;
+}
+
+export function stringifyBigIntMap(input: BigIntMap): BigIntStringMap {
+  const out: BigIntStringMap = Object.create(null);
+
+  for (const [k, v] of Object.entries(input)) {
+    if (typeof v !== "bigint") {
+      throw new Error(`Value for key "${k}" must be a bigint`);
+    }
+    out[k] = v.toString(10);
+  }
+
+  return out;
+}
+
+app.post(
+  "/v1/decompile_mints",
+  async (req: Request, res: Response) => {
+    try {
+      let balances = parseBigIntStringMap(req.body.rawBalances);
+
+      const mints = Object.keys(balances).map((mint) => new PublicKey(mint));
+      mints.push(...Object.values(UNDERLYING_EXPONENT_MINT_DATA).map((mint) => new PublicKey(mint)));
+      mints.push(...Object.values(UNDERLYING_RATEX_MINT_DATA).map((mint) => new PublicKey(mint)));
+      mints.push(...[new PublicKey(JITOSOL_MINT)]) // Adding in case not present for Hylo XSol
+
+      const url = process.env.SOLANA_RPC_URL;
+      if (!url) {
+        return res.status(500).json({ error: "SOLANA_RPC_URL environment variable is not set." });
+      }
+      const connection = new Connection(url, "confirmed");
+
+      const decimalMap = await getDecimalMap(connection, mints);
+
+      const handlers = Object.keys(handlerBn) as (keyof typeof handlerBn)[];
+
+      for (const handlerName of handlers) {
+        balances = await handlerBn[handlerName](connection, balances, decimalMap);
+      }
+
+      const strBalances = stringifyBigIntMap(balances);
+
+      res.json(strBalances);
     } catch (error) {
       console.error("Error processing request:", error);
     }

@@ -4,3 +4,4 @@ export * from "./exponent";
 export * from "./ratex";
 export * from "./meteora";
 export * from "./hylo";
+export * from "./flash";

@@ -54,3 +54,31 @@ export async function deriveStakePoolExchangeRates(connection: Connection, balan
     
     return balances;
 }
+
+export async function deriveStakePoolExchangeRatesBn(connection: Connection, balances: {[mint: string]: bigint}) {
+    try {
+        const stakePools = await fetchAndParseStakePools('https://raw.githubusercontent.com/igneous-labs/sanctum-lst-list/refs/heads/master/sanctum-lst-list.toml');
+
+        const mintsWithBalance = Object.keys(balances);
+        const poolsToSearch = stakePools.filter((sp) => mintsWithBalance.includes(sp.mint)).map((sp) => sp.pool.pool).filter((pool) => pool !== undefined).map((pool) => new PublicKey(pool));
+        const accounts = await connection.getMultipleAccountsInfo(poolsToSearch);
+
+        const stakePoolAccounts = accounts.map((acc) => acc != null && acc.data !== undefined && StakePoolLayout.decode(acc.data)).filter((acc) => acc !== undefined);
+        for(let i = 0; i < stakePoolAccounts.length; i++) {
+            const pool = stakePoolAccounts[i];
+            const solRatio = pool.totalLamports / pool.poolTokenSupply;
+            const existingMint = pool.poolMint.toBase58();
+            if (existingMint) {
+                const newSol = BigInt((solRatio * parseInt(balances[existingMint].toString())).toFixed(0));
+                balances[SOL_MINT] = balances[SOL_MINT] + newSol;
+                delete balances[existingMint];
+            }
+        }
+    } catch (error) {
+        console.error("Error deriving stake pool exchange rates:", error);
+        // Gracefully fail and return partially modified balances
+        // This allows the rest of the pricing logic to continue
+    }
+    
+    return balances;
+}

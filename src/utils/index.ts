@@ -40,3 +40,13 @@ export const switchBaseDecimals = (amount: number, fromDecimals: number, toDecim
     const exponent = toDecimals - fromDecimals;
     return amount * Math.pow(10, exponent);
 }
+
+export const switchBaseDecimalsBn = (amount: bigint, fromDecimals: number, toDecimals: number): bigint => {
+    if (fromDecimals === toDecimals) {
+        return amount;
+    }
+    const exponent = (toDecimals - fromDecimals);
+    const amountBn = BigInt((parseInt(amount.toString()) * (10 ** exponent)).toFixed(0));
+
+    return amountBn;
+}

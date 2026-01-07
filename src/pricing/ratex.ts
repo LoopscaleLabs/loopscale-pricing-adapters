@@ -1,5 +1,5 @@
 import { Connection } from "@solana/web3.js";
-import { switchBaseDecimals } from "../utils";
+import { switchBaseDecimals, switchBaseDecimalsBn } from "../utils";
 
 export const UNDERLYING_RATEX_MINT_DATA: {[exponentMint: string]: string} = {
     "nzjiFvnfhU1C7p2WrH44ap9peywJqNFpZDDK2N2NZ5w": "WFRGB49tP8CdKubqCdt5Spo2BdGS4BpgoinNER5TYUm",
@@ -22,6 +22,7 @@ export const UNDERLYING_RATEX_MINT_DATA: {[exponentMint: string]: string} = {
     "AvZqwxqWXuEW3hJD1A4Ve8bPbeb3xQTiGuyHuTnr5DPk": "HnnGv3HrSqjRpgdFmx7vQGjntNEoex1SU4e9Lxcxuihz",
     "ATwUJh67itLThdNHcjorSFZhUQFr9E3QXhy3yAXu8Y9K": "59obFNBzyTBGowrkif5uK7ojS58vsuWz3ZCvg6tfZAGw",
     "CpqiKSHuEeP3YHUHF1oMkheQJ6PbZ13ASkMdiXR6jJQ3": "4sWNB8zGWHkh6UnmwiEtzNxL4XrN7uK9tosbESbJFfVs",
+    "3RALPaNFZbfvrMk3dFakDHSBHv7f6R9pQ5gcHvpZYk9c": "4sWNB8zGWHkh6UnmwiEtzNxL4XrN7uK9tosbESbJFfVs",
     "CW5HCcetvCMcT8B44P3kakBtQzdC5Jqpyv3ZPyj5HvQB": "5YMkXAYccHSGnHn9nob9xEvv6Pvka9DZWH7nTbotTu9E",
     "8nwGg3MYRghtC1usypoSncsDwvveDfW3w9JvtCNTZ2dk": "5Y8NV33Vv7WbnLfq3zBcKSdYPrk7g2KoiQoe7M2tcxp5",
     "D1XhYyvKoEhWy7XfeLjH1KJdfk5xJCDGXZL1kkB5x2xa": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
@@ -40,6 +41,30 @@ export function getRateXTokenBalances(connection: Connection, balances: {[mint: 
                 }
                 const underlyingAmount = switchBaseDecimals(balances[rateXMint], rateXDecimals, underlyingDecimals);
                 balances[underlyingMint] = (balances[underlyingMint] || 0) + underlyingAmount;
+                delete balances[rateXMint];  
+            }
+        }
+    } catch (error) {
+        console.error("Error in getRateXTokenBalances:", error);
+        // Gracefully fail and return the original balances
+    }
+    
+    return balances;
+}
+
+export function getRateXTokenBalancesBn(connection: Connection, balances: {[mint: string]: bigint}, decimalMap: Map<string, number>) {
+    try {
+        const rateXMintKeys = Object.keys(UNDERLYING_RATEX_MINT_DATA);
+        for (const rateXMint of rateXMintKeys) {
+            if (balances[rateXMint] !== undefined) {
+                const rateXDecimals = decimalMap.get(rateXMint);
+                const underlyingMint = UNDERLYING_RATEX_MINT_DATA[rateXMint];
+                const underlyingDecimals = decimalMap.get(underlyingMint);
+                if (rateXDecimals === undefined || underlyingDecimals === undefined) {
+                    throw new Error(`Missing decimals for exponent mint: ${rateXMint} or underlying mint: ${underlyingMint}`);
+                }
+                const underlyingAmount = switchBaseDecimalsBn(balances[rateXMint], rateXDecimals, underlyingDecimals);
+                balances[underlyingMint] = (balances[underlyingMint] || 0n) + underlyingAmount;
                 delete balances[rateXMint];  
             }
         }

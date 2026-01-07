@@ -1,5 +1,5 @@
 import { Connection } from "@solana/web3.js";
-import { switchBaseDecimals } from "../utils";
+import { switchBaseDecimals, switchBaseDecimalsBn } from "../utils";
 
 export const UNDERLYING_EXPONENT_MINT_DATA: {[exponentMint: string]: string} = {
     "8adRViFUNTe3yexj2gbQtx929zBJtWJRM8TeTzYbQBgx": "WFRGSWjaz8tbAxsJitmbfRuFV2mSNwy7BMWcCwaA28U",
@@ -19,7 +19,8 @@ export const UNDERLYING_EXPONENT_MINT_DATA: {[exponentMint: string]: string} = {
     "6oiDcfve7ybKUC8ysZmncC9iSuxQG2vrRkh3dgV7EKR4": "3ThdFZQKM6kRyVGLG48kaPg5TRMhYMKY1iCRa9xop1WC", //eusx
     "HNapfhQhXPCw5DsEJtkQPQqyNLC767Ax7CVxSkFZRtTB": "WFRGSWjaz8tbAxsJitmbfRuFV2mSNwy7BMWcCwaA28U", // fragsol feb 26
     "Bw6zsBWadivcKo1n2wEyF79pSrKDGyggif4a7wv3dtVi": "BULKoNSGzxtCqzwTvg5hFJg8fx6dqZRScyXe5LYMfxrn", // bulksol feb 26
-    "9AuU8dyHDs7cuzVm9jcu5vmfJpN9dxnaZaB9Cuc5hdmC": "4sWNB8zGWHkh6UnmwiEtzNxL4XrN7uK9tosbESbJFfVs", // xSOL
+    "9AuU8dyHDs7cuzVm9jcu5vmfJpN9dxnaZaB9Cuc5hdmC": "4sWNB8zGWHkh6UnmwiEtzNxL4XrN7uK9tosbESbJFfVs", // xSOL November 25
+    "6bAbqESeDQRutBLyinoJrXUK9ELAUMXShd1pMWtQUz3N": "4sWNB8zGWHkh6UnmwiEtzNxL4XrN7uK9tosbESbJFfVs", // xSOL March 26
     "7vWj1UriSscGmz5wadAC8EkA8ndoU3M7WUifqxTC3Ysf": "6FrrzDk5mQARGc1TDYoyVnSyRdds1t4PbtohCD6p3tgG" //usx feb 26
 };
 
@@ -37,6 +38,31 @@ export function getExponentTokenBalances(connection: Connection, balances: {[min
                 }
                 const underlyingAmount = switchBaseDecimals(balances[exponentMint], exponentDecimals, underlyingDecimals);
                 balances[underlyingMint] = (balances[underlyingMint] || 0) + underlyingAmount;
+                delete balances[exponentMint];  
+            }
+        }
+    } catch (error) {
+        console.error("Error in getExponentTokenBalances:", error);
+        // Gracefully fail and return the original balances
+    }
+
+    return balances;
+}
+
+export function getExponentTokenBalancesBn(connection: Connection, balances: {[mint: string]: bigint}, decimalMap: Map<string, number>) {
+
+    try {
+        const exponentMintKeys = Object.keys(UNDERLYING_EXPONENT_MINT_DATA);
+        for (const exponentMint of exponentMintKeys) {
+            if (balances[exponentMint] !== undefined) {
+                const exponentDecimals = decimalMap.get(exponentMint);
+                const underlyingMint = UNDERLYING_EXPONENT_MINT_DATA[exponentMint];
+                const underlyingDecimals = decimalMap.get(underlyingMint);
+                if (exponentDecimals === undefined || underlyingDecimals === undefined) {
+                    throw new Error(`Missing decimals for exponent mint: ${exponentMint} or underlying mint: ${underlyingMint}`);
+                }
+                const underlyingAmount = switchBaseDecimalsBn(balances[exponentMint], exponentDecimals, underlyingDecimals);
+                balances[underlyingMint] = (balances[underlyingMint] || 0n) + underlyingAmount;
                 delete balances[exponentMint];  
             }
         }
