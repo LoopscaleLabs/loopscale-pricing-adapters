@@ -21,7 +21,15 @@ export const UNDERLYING_EXPONENT_MINT_DATA: {[exponentMint: string]: string} = {
     "Bw6zsBWadivcKo1n2wEyF79pSrKDGyggif4a7wv3dtVi": "BULKoNSGzxtCqzwTvg5hFJg8fx6dqZRScyXe5LYMfxrn", // bulksol feb 26
     "9AuU8dyHDs7cuzVm9jcu5vmfJpN9dxnaZaB9Cuc5hdmC": "4sWNB8zGWHkh6UnmwiEtzNxL4XrN7uK9tosbESbJFfVs", // xSOL November 25
     "6bAbqESeDQRutBLyinoJrXUK9ELAUMXShd1pMWtQUz3N": "4sWNB8zGWHkh6UnmwiEtzNxL4XrN7uK9tosbESbJFfVs", // xSOL March 26
-    "7vWj1UriSscGmz5wadAC8EkA8ndoU3M7WUifqxTC3Ysf": "6FrrzDk5mQARGc1TDYoyVnSyRdds1t4PbtohCD6p3tgG" //usx feb 26
+    "7vWj1UriSscGmz5wadAC8EkA8ndoU3M7WUifqxTC3Ysf": "6FrrzDk5mQARGc1TDYoyVnSyRdds1t4PbtohCD6p3tgG", // usx feb 26
+    "Us2g6G3vfYVkz2Vbs8v7QayRGi6xTUDbyuELrHrK4md": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // usdc jun 4 26
+    "3kctCXgt6pP3uZcek8SqNK2KZdQ6cqtj9hc3U46jhgBk": "6FrrzDk5mQARGc1TDYoyVnSyRdds1t4PbtohCD6p3tgG", // usx jun 1
+    "BR2JKV9gPoJfX8A8DkFmo2yNQKCeGipg33oYaZ4EmjbW": "6FrrzDk5mQARGc1TDYoyVnSyRdds1t4PbtohCD6p3tgG", // usx jun 1 lp
+    "BNR2FsHo8JrYGWx2V8yxG5GBWiG3uU8voi2eMGBHFwEj": "3ThdFZQKM6kRyVGLG48kaPg5TRMhYMKY1iCRa9xop1WC", // eusx jun 1
+    "ZeqaGvENXeyDtb8mBrC3xi1Zi3zhCfKTV2vr2z5Bwao": "5Y8NV33Vv7WbnLfq3zBcKSdYPrk7g2KoiQoe7M2tcxp5", //onyc may 13
+    "3gqhwFZtkU1dUyNN6taFp8sbnu3E5bmkumfjtoF9P9JD": "5Y8NV33Vv7WbnLfq3zBcKSdYPrk7g2KoiQoe7M2tcxp5", //onyc may 13 lp
+    "CepgNWfh7p4pBenHCsWGC7ZfPwhFkskwvKXqmQMLnRRM": "BULKoNSGzxtCqzwTvg5hFJg8fx6dqZRScyXe5LYMfxrn", //bulksol jun 20
+    "JBuRPTd6x3vq8R2Htr8rCr6yVjAmLaV6LfkSMH9TihsC": "BULKoNSGzxtCqzwTvg5hFJg8fx6dqZRScyXe5LYMfxrn" //bulksol lp jun 20
 };
 
 export function getExponentTokenBalances(connection: Connection, balances: {[mint: string]: number}, decimalMap: Map<string, number>) {
