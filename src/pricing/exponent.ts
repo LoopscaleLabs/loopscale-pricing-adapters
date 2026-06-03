@@ -29,7 +29,10 @@ export const UNDERLYING_EXPONENT_MINT_DATA: {[exponentMint: string]: string} = {
     "ZeqaGvENXeyDtb8mBrC3xi1Zi3zhCfKTV2vr2z5Bwao": "5Y8NV33Vv7WbnLfq3zBcKSdYPrk7g2KoiQoe7M2tcxp5", //onyc may 13
     "3gqhwFZtkU1dUyNN6taFp8sbnu3E5bmkumfjtoF9P9JD": "5Y8NV33Vv7WbnLfq3zBcKSdYPrk7g2KoiQoe7M2tcxp5", //onyc may 13 lp
     "CepgNWfh7p4pBenHCsWGC7ZfPwhFkskwvKXqmQMLnRRM": "BULKoNSGzxtCqzwTvg5hFJg8fx6dqZRScyXe5LYMfxrn", //bulksol jun 20
-    "JBuRPTd6x3vq8R2Htr8rCr6yVjAmLaV6LfkSMH9TihsC": "BULKoNSGzxtCqzwTvg5hFJg8fx6dqZRScyXe5LYMfxrn" //bulksol lp jun 20
+    "JBuRPTd6x3vq8R2Htr8rCr6yVjAmLaV6LfkSMH9TihsC": "BULKoNSGzxtCqzwTvg5hFJg8fx6dqZRScyXe5LYMfxrn", //bulksol lp jun 20
+    "2W5zZccVq8AMdrg7P4b3NvBKJyzbdnytRy2CKEDHvhiJ": "5Y8NV33Vv7WbnLfq3zBcKSdYPrk7g2KoiQoe7M2tcxp5", // onyc sep 10
+    "6gUU7UXtGgJ3tmeb2gXxQcVeM2L82bg9MzRYxu2YUspu": "6FrrzDk5mQARGc1TDYoyVnSyRdds1t4PbtohCD6p3tgG", // usx sep 16
+    "2wZkuwSiDyHZuuZfS9C9kFkZNsgwHGjKtCxX3B6Ck6EX": "3ThdFZQKM6kRyVGLG48kaPg5TRMhYMKY1iCRa9xop1WC" // eusx sep 16
 };
 
 export function getExponentTokenBalances(connection: Connection, balances: {[mint: string]: number}, decimalMap: Map<string, number>) {
