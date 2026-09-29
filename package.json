@@ -24,11 +24,14 @@
     "start": "node dist/src/main.js",
     "build": "tsc",
     "dev": "ts-node --transpileOnly ./src/main.ts",
+    "reconcile": "ts-node --transpileOnly ./scripts/reconcile_defillama.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "npx eslint 'src/**/*.{ts,tsx}'",
     "lint:fix": "npx eslint 'src/**/*.{ts,tsx}' --fix"
   },
-  "keywords": ["DeFi Llama"],
+  "keywords": [
+    "DeFi Llama"
+  ],
   "author": "Loopscale Labs",
   "license": "ISC",
   "dependencies": {

@@ -1,0 +1,40 @@
+name: Reconcile DefiLlama TVL
+
+# Compares the live DefiLlama loopscale adapter's deposit breakdown against the
+# latest balances snapshot served by the Markets service (GET /tvl/balances),
+# and fails when they diverge past thresholds (see scripts/reconcile_defillama.ts).
+#
+# Required repo secrets:
+#   SOLANA_RPC_URL          RPC used by the adapter's getProgramAccounts scans
+
+on:
+  schedule:
+    - cron: "17 */6 * * *" # every 6 hours
+  workflow_dispatch:
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Check out DefiLlama-Adapters
+        run: |
+          git clone --depth 1 https://github.com/DefiLlama/DefiLlama-Adapters /tmp/DefiLlama-Adapters
+          cd /tmp/DefiLlama-Adapters
+          npm install --no-audit --no-fund
+
+      - name: Run reconciliation
+        env:
+          DEFILLAMA_ADAPTERS_DIR: /tmp/DefiLlama-Adapters
+          SOLANA_RPC: ${{ secrets.SOLANA_RPC_URL }}
+        run: yarn reconcile
