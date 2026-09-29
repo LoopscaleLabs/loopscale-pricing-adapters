@@ -2,6 +2,7 @@ import { BN } from '@coral-xyz/anchor';
 import AmmImpl from '@mercurial-finance/dynamic-amm-sdk';
 import { Connection, PublicKey } from '@solana/web3.js';
 import { switchBaseDecimals, switchBaseDecimalsBn } from '../utils';
+import { reportError } from '../utils/errorContext';
 
 export const UNDERLYING_METEORA_MINT_DATA: {[mint: string]: {
     pool: string,
@@ -54,35 +55,43 @@ export async function getMeteoraTokenBalances(connection: Connection, balances: 
 }
 
 export async function getMeteoraTokenBalancesBn(connection: Connection, balances: {[mint: string]: bigint}, decimalMap: Map<string, number>) {
-    try {
-        const meteoraMintKeys = Object.keys(UNDERLYING_METEORA_MINT_DATA);
-        for (const metMint of meteoraMintKeys) {
-            if (balances[metMint] !== undefined) {
-                const poolData = UNDERLYING_METEORA_MINT_DATA[metMint];
-                const pool = poolData.pool;
-                const outMint = poolData.outMint;
-                const poolDecimals = decimalMap.get(metMint);
-                const outMintDecimals = decimalMap.get(outMint);
-                if (poolDecimals === undefined || outMintDecimals === undefined) {
-                    throw new Error(`Missing decimals for exponent mint: ${poolDecimals} or underlying mint: ${outMintDecimals}`);
-                }
-                const amm = await getMeteoraPool(connection, pool);
-                const quoteInput = 1_000_000n;
-                const quote = amm.getWithdrawQuote(
-                    new BN(quoteInput),
-                    0,
-                    new PublicKey(outMint),
-                );
-                const scalar = BigInt(quote.tokenAOutAmount.toString()) / quoteInput;
-                const scaledOutAmount = switchBaseDecimalsBn(balances[metMint] * scalar, poolDecimals, outMintDecimals);
+    const meteoraMintKeys = Object.keys(UNDERLYING_METEORA_MINT_DATA);
+    for (const metMint of meteoraMintKeys) {
+        try {
+            const balance = balances[metMint];
+            if (balance === undefined) continue;
 
-                balances[outMint] = (balances[outMint] || 0n) + scaledOutAmount;
-                delete balances[metMint];  
+            const poolData = UNDERLYING_METEORA_MINT_DATA[metMint];
+            const pool = poolData.pool;
+            const outMint = poolData.outMint;
+            const poolDecimals = decimalMap.get(metMint);
+            const outMintDecimals = decimalMap.get(outMint);
+            if (poolDecimals == null || outMintDecimals == null) {
+                throw new Error(`Missing decimals for meteora mint: ${metMint} or underlying mint: ${outMint}`);
             }
+            const amm = await getMeteoraPool(connection, pool);
+            const quoteInput = 1_000_000n;
+            const quote = amm.getWithdrawQuote(
+                new BN(quoteInput),
+                0,
+                new PublicKey(outMint),
+            );
+            // Multiply first, divide last: an intermediate scalar floors the
+            // redemption rate to a whole number (1.08 -> 1, under 1.0 -> 0).
+            // Assumes the out mint is token A in the pool (true for the current
+            // map); a pool with the out mint on the B side needs tokenBOutAmount.
+            const scaledOutAmount = switchBaseDecimalsBn(
+                (balance * BigInt(quote.tokenAOutAmount.toString())) / quoteInput,
+                poolDecimals,
+                outMintDecimals,
+            );
+
+            balances[outMint] = (balances[outMint] || 0n) + scaledOutAmount;
+            delete balances[metMint];
+        } catch (error) {
+            console.error(`Error in getMeteoraTokenBalancesBn for mint ${metMint}:`, error);
+            reportError(`meteora(${metMint})`, error);
         }
-    } catch (error) {
-        console.error("Error in getMeteoraTokenBalances:", error);
-        // Gracefully fail and return the original balances
     }
 
     return balances;

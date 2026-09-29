@@ -1,5 +1,6 @@
 import { Connection } from "@solana/web3.js";
 import { switchBaseDecimals, switchBaseDecimalsBn } from "../utils";
+import { reportError } from "../utils/errorContext";
 
 export const UNDERLYING_RATEX_MINT_DATA: {[exponentMint: string]: string} = {
     "nzjiFvnfhU1C7p2WrH44ap9peywJqNFpZDDK2N2NZ5w": "WFRGB49tP8CdKubqCdt5Spo2BdGS4BpgoinNER5TYUm",
@@ -53,25 +54,26 @@ export function getRateXTokenBalances(connection: Connection, balances: {[mint: 
 }
 
 export function getRateXTokenBalancesBn(connection: Connection, balances: {[mint: string]: bigint}, decimalMap: Map<string, number>) {
-    try {
-        const rateXMintKeys = Object.keys(UNDERLYING_RATEX_MINT_DATA);
-        for (const rateXMint of rateXMintKeys) {
-            if (balances[rateXMint] !== undefined) {
-                const rateXDecimals = decimalMap.get(rateXMint);
-                const underlyingMint = UNDERLYING_RATEX_MINT_DATA[rateXMint];
-                const underlyingDecimals = decimalMap.get(underlyingMint);
-                if (rateXDecimals === undefined || underlyingDecimals === undefined) {
-                    throw new Error(`Missing decimals for exponent mint: ${rateXMint} or underlying mint: ${underlyingMint}`);
-                }
-                const underlyingAmount = switchBaseDecimalsBn(balances[rateXMint], rateXDecimals, underlyingDecimals);
-                balances[underlyingMint] = (balances[underlyingMint] || 0n) + underlyingAmount;
-                delete balances[rateXMint];  
+    const rateXMintKeys = Object.keys(UNDERLYING_RATEX_MINT_DATA);
+    for (const rateXMint of rateXMintKeys) {
+        try {
+            const balance = balances[rateXMint];
+            if (balance === undefined) continue;
+
+            const rateXDecimals = decimalMap.get(rateXMint);
+            const underlyingMint = UNDERLYING_RATEX_MINT_DATA[rateXMint];
+            const underlyingDecimals = decimalMap.get(underlyingMint);
+            if (rateXDecimals == null || underlyingDecimals == null) {
+                throw new Error(`Missing decimals for ratex mint: ${rateXMint} or underlying mint: ${underlyingMint}`);
             }
+            const underlyingAmount = switchBaseDecimalsBn(balance, rateXDecimals, underlyingDecimals);
+            balances[underlyingMint] = (balances[underlyingMint] || 0n) + underlyingAmount;
+            delete balances[rateXMint];
+        } catch (error) {
+            console.error(`Error in getRateXTokenBalancesBn for mint ${rateXMint}:`, error);
+            reportError(`ratex(${rateXMint})`, error);
         }
-    } catch (error) {
-        console.error("Error in getRateXTokenBalances:", error);
-        // Gracefully fail and return the original balances
     }
-    
+
     return balances;
 }

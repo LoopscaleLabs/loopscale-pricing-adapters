@@ -1,4 +1,5 @@
 import { Connection } from "@solana/web3.js";
+import { reportError } from "../utils/errorContext";
 
 // FLP.1 has DeFi Llama Feed
 const FLP_MINT_TO_POOL_MAP: {[pool: string]: string} = {
@@ -76,18 +77,18 @@ export async function getUsdcBalanceOfFlpBn(connection: Connection, balances: {[
             const poolPrice = parseFloat(flashPriceData[i].flpPrice);
 
             const tokenMint = FLP_MINT_TO_POOL_MAP[poolAddress];
-            if (tokenMint !== undefined) {
-                const tokenBalance = parseInt(balances[tokenMint].toString());
-                if (tokenBalance !== undefined) {
-                    const usdcAmount = BigInt((tokenBalance * poolPrice).toFixed(0)); // In Lamports
-                    balances[USDC_MINT] = (balances[USDC_MINT] || 0n) + usdcAmount;
-                    delete balances[tokenMint]; 
-                }
-            }
+            if (tokenMint === undefined) continue;
+            const balance = balances[tokenMint];
+            if (balance === undefined) continue;
+
+            const tokenBalance = parseInt(balance.toString());
+            const usdcAmount = BigInt((tokenBalance * poolPrice).toFixed(0)); // In Lamports
+            balances[USDC_MINT] = (balances[USDC_MINT] || 0n) + usdcAmount;
+            delete balances[tokenMint];
         }
     } catch (error) {
-        console.error("Error in xsol balance fetch:", error);
-        // Gracefully fail and return the original balances
+        console.error("Error in flash FLP balance fetch:", error);
+        reportError("flash", error);
     }
 
     return balances;

@@ -1,5 +1,6 @@
 import { Connection } from "@solana/web3.js";
 import { switchBaseDecimals, switchBaseDecimalsBn } from "../utils";
+import { reportError } from "../utils/errorContext";
 
 export const UNDERLYING_EXPONENT_MINT_DATA: {[exponentMint: string]: string} = {
     "8adRViFUNTe3yexj2gbQtx929zBJtWJRM8TeTzYbQBgx": "WFRGSWjaz8tbAxsJitmbfRuFV2mSNwy7BMWcCwaA28U",
@@ -62,24 +63,26 @@ export function getExponentTokenBalances(connection: Connection, balances: {[min
 
 export function getExponentTokenBalancesBn(connection: Connection, balances: {[mint: string]: bigint}, decimalMap: Map<string, number>) {
 
-    try {
-        const exponentMintKeys = Object.keys(UNDERLYING_EXPONENT_MINT_DATA);
-        for (const exponentMint of exponentMintKeys) {
-            if (balances[exponentMint] !== undefined) {
-                const exponentDecimals = decimalMap.get(exponentMint);
-                const underlyingMint = UNDERLYING_EXPONENT_MINT_DATA[exponentMint];
-                const underlyingDecimals = decimalMap.get(underlyingMint);
-                if (exponentDecimals === undefined || underlyingDecimals === undefined) {
-                    throw new Error(`Missing decimals for exponent mint: ${exponentMint} or underlying mint: ${underlyingMint}`);
-                }
-                const underlyingAmount = switchBaseDecimalsBn(balances[exponentMint], exponentDecimals, underlyingDecimals);
-                balances[underlyingMint] = (balances[underlyingMint] || 0n) + underlyingAmount;
-                delete balances[exponentMint];  
+    const exponentMintKeys = Object.keys(UNDERLYING_EXPONENT_MINT_DATA);
+    for (const exponentMint of exponentMintKeys) {
+        try {
+            const balance = balances[exponentMint];
+            if (balance === undefined) continue;
+
+            const exponentDecimals = decimalMap.get(exponentMint);
+            const underlyingMint = UNDERLYING_EXPONENT_MINT_DATA[exponentMint];
+            const underlyingDecimals = decimalMap.get(underlyingMint);
+            // Note: getDecimalMap stores `null` when the mint account isn't found; treat null and undefined the same.
+            if (exponentDecimals == null || underlyingDecimals == null) {
+                throw new Error(`Missing decimals for exponent mint: ${exponentMint} or underlying mint: ${underlyingMint}`);
             }
+            const underlyingAmount = switchBaseDecimalsBn(balance, exponentDecimals, underlyingDecimals);
+            balances[underlyingMint] = (balances[underlyingMint] || 0n) + underlyingAmount;
+            delete balances[exponentMint];
+        } catch (error) {
+            console.error(`Error in getExponentTokenBalancesBn for mint ${exponentMint}:`, error);
+            reportError(`exponent(${exponentMint})`, error);
         }
-    } catch (error) {
-        console.error("Error in getExponentTokenBalances:", error);
-        // Gracefully fail and return the original balances
     }
 
     return balances;
