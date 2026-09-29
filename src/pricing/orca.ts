@@ -2,6 +2,7 @@ import { Connection, PublicKey } from "@solana/web3.js";
 import { AnchorProvider, Program } from "@coral-xyz/anchor";
 import WhirlpoolIdl from '../contracts/whirlpool.json';
 import { getProgramAddress, whirlpoolTokenBalances, whirlpoolTokenBalancesBn } from "../utils";
+import { reportError } from "../utils/errorContext";
 
 const whirlpoolProgram = (connection: Connection) => {
     const provider = new AnchorProvider(
@@ -101,8 +102,7 @@ export async function parseAndConvertWhirlpoolPositions(connection: Connection, 
         }
     } catch (error) {
         console.error("Error parsing whirlpool positions:", error);
-        // Gracefully fail and return partially modified balances
-        // This allows the rest of the pricing logic to continue
+        reportError("whirlpools", error);
     }
     return balances;
 }
@@ -203,8 +203,7 @@ export async function parseAndConvertWhirlpoolPositionsBn(connection: Connection
         }
     } catch (error) {
         console.error("Error parsing whirlpool positions:", error);
-        // Gracefully fail and return partially modified balances
-        // This allows the rest of the pricing logic to continue
+        reportError("whirlpools", error);
     }
     return balances;
 }

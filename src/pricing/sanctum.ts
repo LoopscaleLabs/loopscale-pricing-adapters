@@ -1,7 +1,9 @@
 import * as toml from '@iarna/toml';
 import { Connection, PublicKey, } from "@solana/web3.js";
 import { StakePoolLayout } from '@solana/spl-stake-pool';
+import BN from 'bn.js';
 import { SOL_MINT } from '../utils';
+import { reportError } from '../utils/errorContext';
 
 type SanctumLstSumamry = {
     mint: string,
@@ -66,19 +68,22 @@ export async function deriveStakePoolExchangeRatesBn(connection: Connection, bal
         const stakePoolAccounts = accounts.map((acc) => acc != null && acc.data !== undefined && StakePoolLayout.decode(acc.data)).filter((acc) => acc !== undefined);
         for(let i = 0; i < stakePoolAccounts.length; i++) {
             const pool = stakePoolAccounts[i];
-            const solRatio = pool.totalLamports / pool.poolTokenSupply;
             const existingMint = pool.poolMint.toBase58();
-            if (existingMint) {
-                const newSol = BigInt((solRatio * parseInt(balances[existingMint].toString())).toFixed(0));
-                balances[SOL_MINT] = balances[SOL_MINT] + newSol;
-                delete balances[existingMint];
-            }
+            const balance = balances[existingMint];
+            if (balance === undefined || balance === 0n) continue;
+
+            // Preserve ratio precision with BN: newSol = balance * totalLamports / poolTokenSupply
+            const balanceBn = new BN(balance.toString());
+            const newSolBn = balanceBn.mul(pool.totalLamports).div(pool.poolTokenSupply);
+            const newSol = BigInt(newSolBn.toString());
+
+            balances[SOL_MINT] = (balances[SOL_MINT] ?? 0n) + newSol;
+            delete balances[existingMint];
         }
     } catch (error) {
         console.error("Error deriving stake pool exchange rates:", error);
-        // Gracefully fail and return partially modified balances
-        // This allows the rest of the pricing logic to continue
+        reportError("sanctum", error);
     }
-    
+
     return balances;
 }
