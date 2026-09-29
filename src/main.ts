@@ -2,23 +2,31 @@ import 'dotenv/config';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { getDecimalMap } from './utils';
+import { errorContext } from './utils/errorContext';
 import { Connection, PublicKey } from '@solana/web3.js';
-import { 
-  getMeteoraTokenBalances, 
-  getExponentTokenBalances, 
-  UNDERLYING_EXPONENT_MINT_DATA, 
-  deriveStakePoolExchangeRates, 
-  getRateXTokenBalances, 
+import {
+  getMeteoraTokenBalances,
+  getExponentTokenBalances,
+  UNDERLYING_EXPONENT_MINT_DATA,
+  deriveStakePoolExchangeRates,
+  getRateXTokenBalances,
   getUsdcBalanceOfFlp,
-  parseAndConvertWhirlpoolPositions, 
-  UNDERLYING_RATEX_MINT_DATA, 
-  JITOSOL_MINT, 
+  parseAndConvertWhirlpoolPositions,
+  UNDERLYING_RATEX_MINT_DATA,
+  JITOSOL_MINT,
   parseAndConvertWhirlpoolPositionsBn,
   getExponentTokenBalancesBn,
   getRateXTokenBalancesBn,
   deriveStakePoolExchangeRatesBn,
   getMeteoraTokenBalancesBn,
-  getUsdcBalanceOfFlpBn
+  getUsdcBalanceOfFlpBn,
+  getXsolBalanceInJitoSol,
+  getXsolBalanceInJitoSolBn,
+  getRatioConvertedBalances,
+  getRatioConvertedBalancesBn,
+  RATIO_UNDERLYING_MINTS,
+  getDawnDealBalances,
+  getDawnDealBalancesBn
 } from './pricing';
 
 const app = express();
@@ -36,8 +44,12 @@ app.get('/', async (_req: Request, res: Response) => {
 
 const handler = {
     "whirlpools": parseAndConvertWhirlpoolPositions,
+    // before hylo so PT-xSOL converted here joins direct xSOL in the JitoSOL conversion
+    "ratio": getRatioConvertedBalances,
+    "dawn": getDawnDealBalances,
     "exponent": getExponentTokenBalances,
     "ratex": getRateXTokenBalances,
+    "hylo": getXsolBalanceInJitoSol,
     "sanctum": deriveStakePoolExchangeRates,
     "meteora": getMeteoraTokenBalances,
     "flash": getUsdcBalanceOfFlp
@@ -53,6 +65,7 @@ app.post(
       mints.push(...Object.values(UNDERLYING_EXPONENT_MINT_DATA).map((mint) => new PublicKey(mint)));
       mints.push(...Object.values(UNDERLYING_RATEX_MINT_DATA).map((mint) => new PublicKey(mint)));
       mints.push(...[new PublicKey(JITOSOL_MINT)]) // Adding in case not present for Hylo XSol
+      mints.push(...RATIO_UNDERLYING_MINTS.map((mint) => new PublicKey(mint)));
 
       const url = process.env.SOLANA_RPC_URL;
       if (!url) {
@@ -71,14 +84,19 @@ app.post(
       res.json(balances);
     } catch (error) {
       console.error("Error processing request:", error);
+      res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
     }
   },
 );
 
 const handlerBn = {
     "whirlpools": parseAndConvertWhirlpoolPositionsBn,
+    // before hylo so PT-xSOL converted here joins direct xSOL in the JitoSOL conversion
+    "ratio": getRatioConvertedBalancesBn,
+    "dawn": getDawnDealBalancesBn,
     "exponent": getExponentTokenBalancesBn,
     "ratex": getRateXTokenBalancesBn,
+    "hylo": getXsolBalanceInJitoSolBn,
     "sanctum": deriveStakePoolExchangeRatesBn,
     "meteora": getMeteoraTokenBalancesBn,
     "flash": getUsdcBalanceOfFlpBn,
@@ -130,6 +148,7 @@ app.post(
       mints.push(...Object.values(UNDERLYING_EXPONENT_MINT_DATA).map((mint) => new PublicKey(mint)));
       mints.push(...Object.values(UNDERLYING_RATEX_MINT_DATA).map((mint) => new PublicKey(mint)));
       mints.push(...[new PublicKey(JITOSOL_MINT)]) // Adding in case not present for Hylo XSol
+      mints.push(...RATIO_UNDERLYING_MINTS.map((mint) => new PublicKey(mint)));
 
       const url = process.env.SOLANA_RPC_URL;
       if (!url) {
@@ -141,8 +160,18 @@ app.post(
 
       const handlers = Object.keys(handlerBn) as (keyof typeof handlerBn)[];
 
-      for (const handlerName of handlers) {
-        balances = await handlerBn[handlerName](connection, balances, decimalMap);
+      const requestErrors: string[] = [];
+      await errorContext.run(requestErrors, async () => {
+        for (const handlerName of handlers) {
+          balances = await handlerBn[handlerName](connection, balances, decimalMap);
+        }
+      });
+
+      if (requestErrors.length > 0) {
+        // Fail loud: any handler reporting an error makes this a bad response.
+        // Returning 500 lets clients (e.g. DefiLlama) fall back to their last-good snapshot
+        // instead of persisting a silently-partial number.
+        throw new Error(`pricing pipeline had ${requestErrors.length} failure(s): ${requestErrors.join('; ')}`);
       }
 
       const strBalances = stringifyBigIntMap(balances);
@@ -150,6 +179,7 @@ app.post(
       res.json(strBalances);
     } catch (error) {
       console.error("Error processing request:", error);
+      res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
     }
   },
 );
