@@ -76,8 +76,15 @@ export async function getMeteoraTokenBalancesBn(connection: Connection, balances
                 0,
                 new PublicKey(outMint),
             );
-            const scalar = BigInt(quote.tokenAOutAmount.toString()) / quoteInput;
-            const scaledOutAmount = switchBaseDecimalsBn(balance * scalar, poolDecimals, outMintDecimals);
+            // Multiply first, divide last: an intermediate scalar floors the
+            // redemption rate to a whole number (1.08 -> 1, under 1.0 -> 0).
+            // Assumes the out mint is token A in the pool (true for the current
+            // map); a pool with the out mint on the B side needs tokenBOutAmount.
+            const scaledOutAmount = switchBaseDecimalsBn(
+                (balance * BigInt(quote.tokenAOutAmount.toString())) / quoteInput,
+                poolDecimals,
+                outMintDecimals,
+            );
 
             balances[outMint] = (balances[outMint] || 0n) + scaledOutAmount;
             delete balances[metMint];
