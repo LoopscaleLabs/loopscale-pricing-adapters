@@ -1,10 +1,9 @@
 import { Connection } from "@solana/web3.js";
 import { reportError } from "../utils/errorContext";
+import { MARKETS_URL } from "../utils/markets";
 
 const XSOL_MINT = "4sWNB8zGWHkh6UnmwiEtzNxL4XrN7uK9tosbESbJFfVs";
 export const JITOSOL_MINT = "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn";
-// Same backend as tars.loopscale.com/v1/prices; the edge requires beta access.
-const MARKETS_URL = process.env.LOOPSCALE_MARKETS_URL || "https://markets-109615290061.us-central1.run.app";
 const RATIO_SCALE = 10n ** 18n;
 
 async function getXsolRate(): Promise<number> {
